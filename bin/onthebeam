@@ -1,0 +1,82 @@
+#!/bin/bash
+
+show_help() {
+  cat <<EOF
+Usage:
+  onthebeam                         Show this help message.
+  onthebeam nodes                   Show info about connected nodes.
+  onthebeam shell    <node> <cmd>   Run 'cmd' on 'node' and print results.
+  onthebeam download <node> <path>  Copy file at 'path'@'node' to localhost (and put the filepath to localhost's clipboard).
+  onthebeam upload   <node> <path>  Copy file at 'path'@localhost to 'node' (and put the filepath to node's clipboard).
+  onthebeam pullclip <node>         Place the content of clipboard on 'node' into the local clipboard.
+  onthebeam pushclip <node>         Place the content of local clipboard into clipboard on 'node'.
+EOF
+}
+
+SNAME='onthebeam'
+ERL_CALL_OPTS="-sname $SNAME -h onthebeam-client"
+PROC_NAME='onthebeam_command_handler'
+
+find_erl_call() {
+  if [ "$OSTYPE" == 'cygwin' ]; then
+    erl_home=$(find 'c:\Program Files' -maxdepth 1 -name 'erl*' | head -1)
+    echo $(find -L "$erl_home" -name 'erl_call.exe' | head -1)
+  else
+    executable=$(which erl_call)
+    if [ $? -eq 0 ]; then
+      echo $executable
+    else
+      erl_home=${ERL_HOME-/usr/lib/erlang}
+      echo $(find -L "$erl_home" -name 'erl_call' | head -1)
+    fi
+  fi
+}
+
+call_with_tuple1() {
+  if [ "$#" -eq 1 ]; then
+    erl_call_bin=$(find_erl_call)
+    echo -e $("$erl_call_bin" $ERL_CALL_OPTS -a "gen_server call [$PROC_NAME, {$1}]" | sed -e 's/^"//' -e 's/"$//')
+  else
+    show_help
+  fi
+}
+call_with_tuple2() {
+  if [ "$#" -eq 2 ]; then
+    erl_call_bin=$(find_erl_call)
+    echo -e $("$erl_call_bin" $ERL_CALL_OPTS -a "gen_server call [$PROC_NAME, {$1, \"$2\"}]" | sed -e 's/^"//' -e 's/"$//')
+  else
+    show_help
+  fi
+}
+call_with_tuple3() {
+  if [ "$#" -eq 3 ]; then
+    erl_call_bin=$(find_erl_call)
+    echo -e $("$erl_call_bin" $ERL_CALL_OPTS -a "gen_server call [$PROC_NAME, {$1, \"$2\", \"$3\"}]" | sed -e 's/^"//' -e 's/"$//')
+  else
+    show_help
+  fi
+}
+
+case $1 in
+  nodes)
+    call_with_tuple1 "$@"
+    ;;
+  shell)
+    call_with_tuple3 "$@"
+    ;;
+  download)
+    call_with_tuple3 "$@"
+    ;;
+  upload)
+    call_with_tuple3 "$@"
+    ;;
+  pullclip)
+    call_with_tuple2 "$@"
+    ;;
+  pushclip)
+    call_with_tuple2 "$@"
+    ;;
+  *)
+    show_help
+    ;;
+esac

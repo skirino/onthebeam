@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+SNAME='onthebeam'
+IEX_OPTS="--sname $SNAME -S mix"
+
+if [ "$OSTYPE" == 'cygwin' ]; then
+  elixir_home=${ELIXIR_HOME-/opt/elixir}
+  iex_bat=$(find -L "$elixir_home" -name 'iex.bat' | head -1)
+  iex_bat_win=$(cygpath -w "$iex_bat")
+  cmd /c "$iex_bat_win $IEX_OPTS"
+else
+  executable=$(which iex)
+  if [ $? -eq 0 ]; then
+    "$executable" $IEX_OPTS
+  else
+    elixir_home=${ELIXIR_HOME-/opt/elixir}
+    iex_sh=$(find -L "$erl_home" -name 'iex' | head -1)
+    "$iex_sh" $IEX_OPTS
+  fi
+fi
