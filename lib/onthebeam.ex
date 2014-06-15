@@ -1,5 +1,5 @@
 defmodule Onthebeam do
-  use Application.Behaviour
+  use Application
 
   def start(_type, _args) do
     Onthebeam.Supervisor.start_link

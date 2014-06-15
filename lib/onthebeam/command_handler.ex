@@ -1,5 +1,5 @@
 defmodule Onthebeam.CommandHandler do
-  use GenServer.Behaviour
+  use GenServer
 
   # Public API
   def start_link do
