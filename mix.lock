@@ -1,1 +1,1 @@
-%{"node_finder": {:git, "git://github.com/skirino/node_finder.git", "a380e9e6571a10c969d3e73db738a122cf33382f", []}}
+%{"node_finder": {:git, "git://github.com/skirino/node_finder.git", "bb10f7504df4ed066feb9b0e613305ff6075b0c9", []}}

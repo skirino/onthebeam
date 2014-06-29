@@ -24,7 +24,7 @@ defmodule Onthebeam.CommandHandler do
     end
 
     def select(pattern) do
-      lower_pattern = String.downcase String.from_char_list!(pattern)
+      lower_pattern = String.downcase List.to_string(pattern)
       matches = Enum.filter(all_nodes, fn(n) -> node_matches?(n, lower_pattern) end)
       if length(matches) == 1 do
         List.first matches
@@ -34,7 +34,7 @@ defmodule Onthebeam.CommandHandler do
     end
 
     defp node_matches?(node, pattern) do
-      String.contains? String.downcase(atom_to_binary(node)), pattern
+      String.contains? String.downcase(Atom.to_string(node)), pattern
     end
 
     defp all_nodes do
@@ -70,9 +70,9 @@ defmodule Onthebeam.CommandHandler do
     def put_content(content) do
       content_chomp = String.rstrip(content, ?\n)
       tmp_path = Path.join System.tmp_dir!, "onthebeam_clipboard.txt"
-      File.write!(tmp_path, content_chomp)
-      System.cmd put_content_cmd(tmp_path)
-      File.rm tmp_path
+      :ok = File.write!(tmp_path, content_chomp)
+      _binary = System.cmd put_content_cmd(tmp_path)
+      :ok = File.rm tmp_path
     end
 
     defp get_content_cmd do
