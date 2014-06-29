@@ -11,7 +11,7 @@ if [ "$OSTYPE" == 'cygwin' ]; then
   iex_bat_win=$(cygpath -w "$iex_bat")
   cmd /c "$iex_bat_win $IEX_OPTS"
 else
-  executable=$(which iex)
+  executable=$(which iex 2> /dev/null)
   if [ $? -eq 0 ]; then
     "$executable" $IEX_OPTS
   else
