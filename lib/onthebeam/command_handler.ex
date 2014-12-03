@@ -43,9 +43,9 @@ defmodule Onthebeam.CommandHandler do
   end
 
   defmodule Shell do
-    def run(node_pattern, cmd) do
+    def run(node_pattern, command) do
       node = Nodes.select(node_pattern)
-      :rpc.call(node, System, :cmd, [cmd])
+      :rpc.call(node, :os, :cmd, [command])
     end
   end
 
@@ -61,7 +61,7 @@ defmodule Onthebeam.CommandHandler do
       :rpc.call(node, __MODULE__, :get_content, [])
     end
     def get_content do
-      System.cmd get_content_cmd
+      List.to_string :os.cmd(get_content_cmd)
     end
 
     defp put_content_on(node, content) do
@@ -71,24 +71,24 @@ defmodule Onthebeam.CommandHandler do
       content_chomp = String.rstrip(content, ?\n)
       tmp_path = Path.join System.tmp_dir!, "onthebeam_clipboard.txt"
       :ok = File.write!(tmp_path, content_chomp)
-      _binary = System.cmd put_content_cmd(tmp_path)
+      _output = :os.cmd put_content_cmd(tmp_path)
       :ok = File.rm tmp_path
     end
 
     defp get_content_cmd do
-      cmd_dict = [
-        { "xsel"       , "xsel --output" },
-        { "pbpaste"    , "pbpaste" },
-        { "getclip.exe", "getclip" },
-      ]
+      cmd_dict = %{
+        "xsel"        => 'xsel --output',
+        "pbpaste"     => 'pbpaste',
+        "getclip.exe" => 'getclip',
+      }
       Dict.get(cmd_dict, find_clipboard_cli_for_env)
     end
     defp put_content_cmd(tmp_path) do
-      cmd_dict = [
-        { "xsel"       , "cat '#{tmp_path}' | xsel --input --clipboard" },
-        { "pbpaste"    , "cat '#{tmp_path}' | pbcopy" },
-        { "getclip.exe", "cat '#{tmp_path}' | putclip" },
-      ]
+      cmd_dict = %{
+        "xsel"        => 'cat "#{tmp_path}" | xsel --input --clipboard',
+        "pbpaste"     => 'cat "#{tmp_path}" | pbcopy'                  ,
+        "getclip.exe" => 'cat "#{tmp_path}" | putclip'                 ,
+      }
       Dict.get(cmd_dict, find_clipboard_cli_for_env)
     end
     defp find_clipboard_cli_for_env do
