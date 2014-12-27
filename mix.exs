@@ -5,7 +5,7 @@ defmodule Onthebeam.Mixfile do
     [
       app:     :onthebeam,
       version: "0.0.1",
-      elixir:  ">= 0.12.0",
+      elixir:  ">= 1.0.0",
       deps:    deps,
     ]
   end
